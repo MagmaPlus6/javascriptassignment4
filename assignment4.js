@@ -1,5 +1,6 @@
-const prompt = require('prompt-sync')({sigint: true});
+const prompt = require('prompt-sync')({sigint: true}); //Enabling user-input and sigint allows user to exit the program with ctrl-c
 
+//Define the variables
 const hat = 'H';
 const hole = 'O';
 const fieldCharacter = '░';
@@ -17,10 +18,10 @@ class Field {
     this.field[0][0] = pathCharacter;
   }
 
-  runGame() {
+  runGame() { //This will run the game
     while (true) {
       this.print();
-      this.askQuestion();
+      this.askQuestion(); //Ask for user input
       if (!this.isInBounds()) {
         console.log('You Lose: Out of bounds!');
         return false;
@@ -50,10 +51,10 @@ class Field {
 
   }
 
-  askQuestion() {
+  askQuestion() {  //Ask for user-input and determine previous path
     this.prevX =  this.locationX;
     this.prevY = this.locationY;
-    this.direction = prompt('Which way (U, D, L, R)? ').toUpperCase();
+    this.direction = prompt('Which way (U, D, L, R)? ').toUpperCase(); //Getting user input and ensuring that it is converted into uppercase
     switch (this.direction) {
       case 'U':
         this.locationY -= 1;
@@ -69,43 +70,37 @@ class Field {
         break;
       default:
         console.log('Enter U, D, L or R.');
-        this.askQuestion(); // recursively function call to ask back same question if enter wrongly
+        this.askQuestion(); // recursively function call to ask back same question if enter wrongly. If something else is key in, askQuestion() would be trigger again 
         break;
     }
   }
 
-  isInBounds() {
-    return (
-      this.locationY >= 0 &&
-      this.locationX >= 0 &&
-      this.locationY < this.field.length &&
-      this.locationX < this.field[0].length
-    );
+  isInBounds() { //Check if its in-bound
+    return (this.locationY >= 0 && this.locationX >= 0 && this.locationY < this.field.length && this.locationX < this.field[0].length);
   }
 
-  isHat() {
+  isHat() { //Check if its the hat
     return this.field[this.locationY][this.locationX] === hat;
   }
 
-  isHole() {
+  isHole() { //Check its a hole
     return this.field[this.locationY][this.locationX] === hole;
   }
 
-  print() {
+  print() { //To display the 2D array as a string
     const height = this.field.length;
     const width = this.field[0].length;
     let displayString = "";
     for(let row = 0; row < height; ++row){
       for(let col = 0; col < width; ++col){
-        displayString += `${this.field[row][col]}`
+        displayString += `${this.field[row][col]}` //append element's value to display string
       }
-      displayString += "\n"
+      displayString += "\n" //After finishing a row, it adds a newline character
     }
     console.log(displayString);
   }
 
-  static generateField(height, width, percentage = 0.1) {
-    //const field = new Array(height).fill(0).map(el => new Array(width));
+  static generateField(height, width, percentage = 0.1) { //Generation of the field with height,width and percentage of holes that would be appearing 
     let field = [];
     for(let row = 0; row < height; ++row){
       let rowData = []
@@ -115,7 +110,7 @@ class Field {
       field.push(rowData);
     }
 
-    for (let y = 0; y < height; y++) {
+    for (let y = 0; y < height; y++) { //Two loops one for 'y' and another for 'x'
       for (let x = 0; x < width; x++) {
         const prob = Math.random(); // random value from 0 to 0.9999999
         // setting this position [row][col] either Floor/Hole.
@@ -130,7 +125,7 @@ class Field {
     };
 
     // Make sure the "hat" is not at the starting point
-    while (hatLocation.x === 0 && hatLocation.y === 0) {
+    while (hatLocation.x === 0 && hatLocation.y === 0) { // if it does generate at the starting point, regenerate again 
       hatLocation.x = Math.floor(Math.random() * width);
       hatLocation.y = Math.floor(Math.random() * height);
     }
@@ -139,28 +134,27 @@ class Field {
   }
 }
 
-// Created class Field
-// 10 row x 10 col, 20% obstacles
-let difficulty = 1
+let difficulty = 1 //difficulty level is preset and a +1 increment will happen once user clear each level 
+
 while(true){
   const startGameChoice = prompt(`Start game level ${difficulty} (Y/N)`).toUpperCase();
   if(startGameChoice == 'Y'){
-    let obstacles = 0.1*difficulty;
-    if(obstacles > 0.8){
+    let obstacles = 0.1*difficulty; //A 10 percent chance the hole will appear
+    if(obstacles > 0.8){ //Its cap at 80%, refers to the generation of the hole
       obstacles = 0.8;
     }
-    const myfield = new Field(Field.generateField(5*difficulty, 10*difficulty, obstacles));
-    const hasWin = myfield.runGame();
+    const myfield = new Field(Field.generateField(5*difficulty, 10*difficulty, obstacles)); //Generate the fields based on the parameters
+    const hasWin = myfield.runGame(); //If user clear, run the game again
     if(hasWin){
-      difficulty += 1;
+      difficulty += 1; //If user win, difficulty would increase by one
     }
   }
-  else if(startGameChoice == 'N'){
+  else if(startGameChoice == 'N'){ //Leave the game if user choice is N
     console.log("Thank you for playing Maze!")
     break;
   }
   else{
-    console.log("Unknown choice!")
+    console.log("Unknown choice!") //return this if other alphabet is inserted
   }
 }
 
